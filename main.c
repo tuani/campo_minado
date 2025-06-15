@@ -1,45 +1,40 @@
-#include <stdio.h>        // Importa funções padrão de entrada e saída
-#include <stdlib.h>       // Importa funções como malloc, free e rand
-#include <time.h>         // Importa time() para gerar aleatoriedade com srand
+#include <stdio.h>
+#include <stdlib.h>
+#include <time.h>
 
-// Define a struct Celula — representa cada espaço no campo minado
+// Cada célula pode conter uma bomba ('X') ou estar segura ('O')
 typedef struct {
-    char valor;           // 'X' = bomba, 'O' = seguro
-    int revelado;         // 1 = revelado, 0 = escondido
+    char valor;     // 'X' = bomba, 'O' = seguro
+    int revelado;   // 1 = revelado, 0 = escondido
 } Celula;
 
-// Função que recebe linha, coluna e número de colunas, e retorna índice no vetor
+// Converte coordenadas 2D para índice no vetor 1D
 int get_index(int linha, int coluna, int colunas) {
-    return linha * colunas + coluna; // Converte coordenada 2D em índice 1D
+    return linha * colunas + coluna;
 }
 
-// Mostra as posições das bombas (apenas para testes e apresentação)
+// Mostra onde estão as bombas (usado para testes e depuração)
 void mostrar_bombas(Celula *campo, int linhas, int colunas) {
     printf("\n💣 Mapa das Bombas (apenas para testes):\n");
     for (int l = 0; l < linhas; l++) {
         for (int c = 0; c < colunas; c++) {
             int i = get_index(l, c, colunas);
-            if (campo[i].valor == 'X')
-                printf(" X ");
-            else
-                printf(" . ");
+            printf(" %c ", campo[i].valor == 'X' ? 'X' : '.');
         }
         printf("\n");
     }
 }
 
-// Função que cria e retorna o campo de jogo (recebe linhas, colunas e bombas)
+// Cria o campo e posiciona as bombas aleatoriamente
 Celula* criar_campo(int linhas, int colunas, int bombas) {
     int total = linhas * colunas;
     Celula *campo = malloc(total * sizeof(Celula));
 
-    // Inicializa todas as células como seguras e não reveladas
     for (int i = 0; i < total; i++) {
         campo[i].valor = 'O';
         campo[i].revelado = 0;
     }
 
-    // Posiciona bombas aleatoriamente
     int colocadas = 0;
     while (colocadas < bombas) {
         int pos = rand() % total;
@@ -52,7 +47,7 @@ Celula* criar_campo(int linhas, int colunas, int bombas) {
     return campo;
 }
 
-// Função que apenas exibe o campo (recebe, mas não retorna)
+// Exibe o campo com as células reveladas ou ocultas
 void exibir_campo(Celula *campo, int linhas, int colunas) {
     printf("\n   ");
     for (int i = 0; i < colunas; i++)
@@ -63,16 +58,13 @@ void exibir_campo(Celula *campo, int linhas, int colunas) {
         printf("%2d ", l);
         for (int c = 0; c < colunas; c++) {
             int i = get_index(l, c, colunas);
-            if (campo[i].revelado)
-                printf(" %c ", campo[i].valor);
-            else
-                printf(" . ");
+            printf(" %c ", campo[i].revelado ? campo[i].valor : '.');
         }
         printf("\n");
     }
 }
 
-// Função que retorna a escolha da pausa
+// Exibe o menu de pausa durante o jogo
 int menu_pausa() {
     int op;
     printf("\n=== PAUSA ===\n1. Voltar\n2. Sair\nEscolha: ");
@@ -80,7 +72,7 @@ int menu_pausa() {
     return op;
 }
 
-// Função principal do jogo
+// Executa uma partida com base no nível escolhido
 void jogar_partida(int nivel, int *pontuacao) {
     int linhas, colunas, bombas;
 
@@ -93,7 +85,7 @@ void jogar_partida(int nivel, int *pontuacao) {
     }
 
     Celula *campo = criar_campo(linhas, colunas, bombas);
-    mostrar_bombas(campo, linhas, colunas);
+    mostrar_bombas(campo, linhas, colunas); // Remover se quiser ocultar as bombas
     int total = linhas * colunas;
 
     int jogadas_seguras = 0;
@@ -113,9 +105,7 @@ void jogar_partida(int nivel, int *pontuacao) {
             if (menu_pausa() == 2) {
                 sair = 1;
                 break;
-            } else {
-                continue;
-            }
+            } else continue;
         }
 
         printf("Coluna: ");
@@ -156,7 +146,7 @@ void jogar_partida(int nivel, int *pontuacao) {
     free(campo);
 }
 
-// Função que retorna a escolha do nível
+// Menu para seleção de nível de dificuldade
 int menu_niveis() {
     int nivel;
     printf("\nEscolha o nível de dificuldade:\n");
@@ -168,7 +158,7 @@ int menu_niveis() {
     return nivel;
 }
 
-// Função que exibe o menu principal do jogo
+// Menu principal do jogo
 void menu_principal() {
     int opcao;
     int pontuacao = 0;
@@ -193,9 +183,8 @@ void menu_principal() {
     printf("Até a próxima!\n");
 }
 
-// Função principal
 int main() {
-    srand(time(NULL));
+    srand(time(NULL));  // Inicializa o gerador de números aleatórios
     menu_principal();
     return 0;
 }
